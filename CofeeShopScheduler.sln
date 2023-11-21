@@ -1,0 +1,33 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34309.116
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CofeeShopScheduler.Server", "CofeeShopScheduler.Server\CofeeShopScheduler.Server.csproj", "{F8F8A2E6-E31D-44A1-AB8E-1BA9629A4FCE}"
+EndProject
+Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "cofeeshopscheduler.client", "cofeeshopscheduler.client\cofeeshopscheduler.client.esproj", "{AA034169-9EC5-493D-B317-4FE616B851C9}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F8F8A2E6-E31D-44A1-AB8E-1BA9629A4FCE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F8F8A2E6-E31D-44A1-AB8E-1BA9629A4FCE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F8F8A2E6-E31D-44A1-AB8E-1BA9629A4FCE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F8F8A2E6-E31D-44A1-AB8E-1BA9629A4FCE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AA034169-9EC5-493D-B317-4FE616B851C9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AA034169-9EC5-493D-B317-4FE616B851C9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AA034169-9EC5-493D-B317-4FE616B851C9}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{AA034169-9EC5-493D-B317-4FE616B851C9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AA034169-9EC5-493D-B317-4FE616B851C9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AA034169-9EC5-493D-B317-4FE616B851C9}.Release|Any CPU.Deploy.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {9125B778-0088-4225-B5AD-8E8A5CCA4750}
+	EndGlobalSection
+EndGlobal

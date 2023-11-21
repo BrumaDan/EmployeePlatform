@@ -1,0 +1,6 @@
+@CofeeShopScheduler.Server_HostAddress = http://localhost:5229
+
+GET {{CofeeShopScheduler.Server_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
