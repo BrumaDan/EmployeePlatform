@@ -1,56 +1,29 @@
-import { useEffect, useState } from 'react';
-import './App.css';
-
-interface Forecast {
-    date: string;
-    temperatureC: number;
-    temperatureF: number;
-    summary: string;
-}
+import { Suspense } from 'react'
+import './App.css'
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { createBrowserHistory, History } from "history";
+import SignInSide from '../src/components/SignInSide';
+import axios from 'axios'
 
 function App() {
-    const [forecasts, setForecasts] = useState<Forecast[]>();
-
-    useEffect(() => {
-        populateWeatherData();
-    }, []);
-
-    const contents = forecasts === undefined
-        ? <p><em>Loading... Please refresh once the ASP.NET backend has started. See <a href="https://aka.ms/jspsintegrationreact">https://aka.ms/jspsintegrationreact</a> for more details.</em></p>
-        : <table className="table table-striped" aria-labelledby="tabelLabel">
-            <thead>
-                <tr>
-                    <th>Date</th>
-                    <th>Temp. (C)</th>
-                    <th>Temp. (F)</th>
-                    <th>Summary</th>
-                </tr>
-            </thead>
-            <tbody>
-                {forecasts.map(forecast =>
-                    <tr key={forecast.date}>
-                        <td>{forecast.date}</td>
-                        <td>{forecast.temperatureC}</td>
-                        <td>{forecast.temperatureF}</td>
-                        <td>{forecast.summary}</td>
-                    </tr>
-                )}
-            </tbody>
-        </table>;
+    const history: History = createBrowserHistory();
+    axios.get('/api/location').then(res => console.log(res)).catch(err => console.log(err))
 
     return (
-        <div>
-            <h1 id="tabelLabel">Weather forecast</h1>
-            <p>This component demonstrates fetching data from the server.</p>
-            {contents}
-        </div>
-    );
+        //eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        //@ts-ignore      
+        <Router history={history}>
+            <Suspense fallback={<div>Loading...</div>}>
+                <Routes>
+                    <Route path="/" element={<SignInSide />} />
 
-    async function populateWeatherData() {
-        const response = await fetch('weatherforecast');
-        const data = await response.json();
-        setForecasts(data);
-    }
+                    {/*<Route path="/home" element={   <RequireAuth allowedRoles={'admin'}><SignInSide /></RequireAuth>} />*/}
+                    <Route path="/home" element={<SignInSide />} />
+
+                </Routes>
+            </Suspense>
+        </Router>
+        )
 }
 
 export default App;
