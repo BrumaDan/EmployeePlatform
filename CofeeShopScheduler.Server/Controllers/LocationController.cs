@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using CoffeeShopScheduler.Models;
 using CoffeeShopScheduler.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace CoffeeShopScheduler.Controllers
 {
@@ -16,6 +17,7 @@ namespace CoffeeShopScheduler.Controllers
             this.locationService = locationService;
         }
         [HttpGet]
+        [Authorize]
         [EnableCors]
         public ActionResult<IEnumerable<LocationModel>> Get()
         {
