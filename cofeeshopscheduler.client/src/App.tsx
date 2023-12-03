@@ -3,11 +3,10 @@ import './App.css'
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { createBrowserHistory, History } from "history";
 import SignInSide from '../src/components/SignInSide';
-import axios from 'axios'
+import Home from '../src/components/Home';
 
 function App() {
-    const history: History = createBrowserHistory();
-    axios.get('/api/location').then(res => console.log(res)).catch(err => console.log(err))
+    const history: History = createBrowserHistory();    
 
     return (
         //eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -18,7 +17,7 @@ function App() {
                     <Route path="/" element={<SignInSide />} />
 
                     {/*<Route path="/home" element={   <RequireAuth allowedRoles={'admin'}><SignInSide /></RequireAuth>} />*/}
-                    <Route path="/home" element={<SignInSide />} />
+                    <Route path="/home" element={<Home />} />
 
                 </Routes>
             </Suspense>

@@ -12,26 +12,36 @@ import Grid from '@mui/material/Grid';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-//import { useLocation, useNavigate } from 'react-router-dom';
+import {  useNavigate } from 'react-router-dom';
 import axios from 'axios'
+import useAuthStore from '../store/AuthStore';
 
-// TODO remove, this demo shouldn't need to reset the theme.
+
 const defaultTheme = createTheme();
 
- const  SignInSide =()=> {
-  //const navigate = useNavigate();
+const SignInSide = () => {  
+    const setToken = useAuthStore((state) => state.setToken);
+    const setIsAuthenticated = useAuthStore((state) => state.setIsAuthenticated);
+  const navigate = useNavigate();
   //const { state } = useLocation();
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault();
       const data = new FormData(event.currentTarget);
       axios.post('/api/identity/login',
           {
-          email: data.get('email'),
-          password: data.get('password')
+              email: data.get('email'),
+              password: data.get('password')
           }
-      ).then(res => console.log(`Login ok ${res}`)).catch(err => console.log(`Login not ok ${err}` ))
+      ).then(res => { 
+          if(res.status === 200){
+          setIsAuthenticated(true)
+              setToken(res.data.accessToken)
+              navigate("/home");
+          }
+      }).catch(err => console.log(`Login not ok ${err}`))
     
-    //navigate(state?.path || "/home");
+      //navigate(state?.path || "/home");
+      
   };
 
   return (
