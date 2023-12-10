@@ -47,7 +47,6 @@ builder.Services.AddAuthorization();
 builder.Services.AddIdentityApiEndpoints<IdentityUser>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
-builder.Services.AddTransient<IClaimsTransformation, MyClaimsTransformation>();
 
 var app = builder.Build();
 
