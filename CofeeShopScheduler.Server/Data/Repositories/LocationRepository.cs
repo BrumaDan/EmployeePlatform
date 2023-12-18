@@ -3,7 +3,7 @@ using CoffeeShopScheduler.DomainModel;
 
 namespace CoffeeShopScheduler.Data.Repositories
 {
-    public class LocationRepository : ILocation
+    public class LocationRepository : ILocationRepository
     {
         private readonly ApplicationDbContext applicationDbContext;
 

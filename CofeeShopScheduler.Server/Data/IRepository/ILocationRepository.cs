@@ -2,7 +2,7 @@
 
 namespace CoffeeShopScheduler.Data.IRepository
 {
-    public interface ILocation
+    public interface ILocationRepository
     {
         Location AddLocation(Location newLocation);
         IEnumerable<Location> GetLocations();

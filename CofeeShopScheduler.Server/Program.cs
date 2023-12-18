@@ -1,11 +1,19 @@
+using CofeeShopScheduler.Server.Data.IRepository;
+using CofeeShopScheduler.Server.Data.Repositories;
+using CofeeShopScheduler.Server.DomainModel;
+using CofeeShopScheduler.Server.Infrastructure;
+using CofeeShopScheduler.Server.Interfaces;
+using CofeeShopScheduler.Server.Services;
 using CoffeeShopScheduler.Data;
 using CoffeeShopScheduler.Data.IRepository;
 using CoffeeShopScheduler.Data.Repositories;
 using CoffeeShopScheduler.Infrastructure;
 using CoffeeShopScheduler.Services;
-using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -35,17 +43,36 @@ builder.Services.AddControllers();
 //Automapper
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddAutoMapper(typeof(LocationProfile));
+builder.Services.AddAutoMapper(typeof(AppUserProfile));
 //Location wiring
-builder.Services.AddScoped<ILocation, LocationRepository>();
+builder.Services.AddScoped<ILocationRepository, LocationRepository>();
 builder.Services.AddScoped<ILocationService, LocationService>();
+builder.Services.AddScoped<IAppUserRepository, AppUserRepository>();
+builder.Services.AddScoped<IAppUserService, AppUserService>();
+builder.Services.AddScoped<ITokenService, TokenService>();
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddAuthorization();
+builder.Services.AddIdentityCore<AppUser>(opt =>
+{
+    opt.Password.RequireNonAlphanumeric = false;
+})
+.AddRoles<AppRole>()
+.AddRoleManager<RoleManager<AppRole>>()
+.AddEntityFrameworkStores<ApplicationDbContext>();
 
-builder.Services.AddIdentityApiEndpoints<IdentityUser>()
-    .AddEntityFrameworkStores<ApplicationDbContext>();
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options => options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["TokenKey"])),
+        ValidateIssuer = false,
+        ValidateAudience = false
+    });
+
+
 
 
 var app = builder.Build();
@@ -63,9 +90,10 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.MapGroup("/api/identity").MapIdentityApi<IdentityUser>();
-app.MapControllerRoute(name: "default", pattern: "/api/{controller}/{action=Index}/{id?}");
+//app.MapGroup("/api/identity").MapIdentityApi<IdentityUser>();
+//app.MapControllerRoute(name: "default", pattern: "/api/{controller}/{action=Index}/{id?}");
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

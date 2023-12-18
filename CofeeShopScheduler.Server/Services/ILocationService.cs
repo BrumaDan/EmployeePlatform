@@ -1,4 +1,5 @@
-﻿using CoffeeShopScheduler.Models;
+﻿using CofeeShopScheduler.Server.Models;
+using CoffeeShopScheduler.Models;
 
 namespace CoffeeShopScheduler.Services
 {
@@ -6,5 +7,7 @@ namespace CoffeeShopScheduler.Services
     {
         LocationModel AddLocation(LocationModel newLocation);
         IEnumerable<LocationModel> GetAllLocations();
+
+       
     }
 }

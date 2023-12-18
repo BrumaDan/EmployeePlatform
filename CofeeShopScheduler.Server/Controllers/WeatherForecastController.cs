@@ -4,9 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CoffeeShopScheduler.Controllers
 {
-    [ApiController]
-    //[Authorize]
-    [Route("api/[controller]")]
 
     public class WeatherForecastController : ControllerBase
     {

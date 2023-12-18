@@ -8,10 +8,10 @@ namespace CoffeeShopScheduler.Services
 {
     public class LocationService : ILocationService
     {
-        private readonly ILocation locationRepository;
+        private readonly ILocationRepository locationRepository;
         private readonly IMapper mapper;
 
-        public LocationService(ILocation locationRepository, IMapper mapper)
+        public LocationService(ILocationRepository locationRepository, IMapper mapper)
         {
             this.locationRepository = locationRepository;
             this.mapper = mapper;
