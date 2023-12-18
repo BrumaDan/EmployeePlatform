@@ -12,6 +12,7 @@ namespace CofeeShopScheduler.Server.Infrastructure
     {
         public AppUserProfile()
         {   //map from user to register dto
+            //another test
             CreateMap<AppUser, RegisterDto>();
             CreateMap<RegisterDto, AppUser>();
         }
