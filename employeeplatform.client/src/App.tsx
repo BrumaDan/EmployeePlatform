@@ -4,6 +4,10 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { createBrowserHistory, History } from "history";
 import SignInSide from '../src/components/SignInSide';
 import Home from '../src/components/Home';
+import RequestsHomePage from './components/Requests/RequestsHomePage';
+import LocationsHomePage from './components/Locations/LocationsHomePage';
+import EmployeesHomePage from './components/Employees/EmployeesHomePage';
+import DashboardPage from './components/Dashboard/DashboardPage';
 
 function App() {
     const history: History = createBrowserHistory();
@@ -14,11 +18,15 @@ function App() {
         <Router history={history}>
             <Suspense fallback={<div>Loading...</div>}>
                 <Routes>
-                    <Route path="/" element={<SignInSide />} />
-
-                    {/*<Route path="/home" element={   <RequireAuth allowedRoles={'admin'}><SignInSide /></RequireAuth>} />*/}
-                    <Route path="/home" element={<Home />} />
-
+                    <Route path="/" element={<SignInSide />} />                    
+                    <Route path="/home" element={<Home />}>
+                        <Route index path="dashboard" element={<DashboardPage />} />
+                        <Route path="requests" element={<RequestsHomePage />} />
+                        <Route path="locations" element={<LocationsHomePage />} />
+                        {/*<Route path="locations" element={<RequireAuth allowedRoles={'Administrator'}><LocationsHomePage /></RequireAuth>} />*/}
+                        <Route path="employees" element={<EmployeesHomePage />} />
+                        {/*<Route path="employees" element={<RequireAuth allowedRoles={'Administrator'}><EmployeesHomePage /></RequireAuth>} />*/}
+                    </Route>
                 </Routes>
             </Suspense>
         </Router>

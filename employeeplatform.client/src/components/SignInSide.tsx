@@ -12,9 +12,10 @@ import Grid from '@mui/material/Grid';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import {  useNavigate } from 'react-router-dom';
+import {   useNavigate } from 'react-router-dom';
 import axios from 'axios'
 import useAuthStore from '../store/AuthStore';
+import { Alert, AlertTitle, Snackbar } from '@mui/material';
 
 
 const defaultTheme = createTheme();
@@ -22,8 +23,9 @@ const defaultTheme = createTheme();
 const SignInSide = () => {  
     const setToken = useAuthStore((state) => state.setToken);
     const setIsAuthenticated = useAuthStore((state) => state.setIsAuthenticated);
-  const navigate = useNavigate();
-  //const { state } = useLocation();
+    const setRole = useAuthStore((state) => state.setRole);
+  const navigate = useNavigate();    
+    const [alertMessage , setAlertMessage] = React.useState<string | null>(null)
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault();
       const data = new FormData(event.currentTarget);
@@ -37,12 +39,10 @@ const SignInSide = () => {
           if(res.status === 200){
               setIsAuthenticated(true)                
               setToken(res.data.token)
+              setRole(res.data.role)
               navigate("/home");
           }
-      }).catch(err => console.log(`Login not ok ${err}`))
-    
-      //navigate(state?.path || "/home");
-      
+      }).catch(err => { setAlertMessage(`${err.response.data}`)})            
   };
 
   return (
@@ -85,7 +85,7 @@ const SignInSide = () => {
                 required
                 fullWidth
                 id="email"                
-                label="Email Address"
+                label="Username"
                 name="email"
                 autoComplete="email"
                 autoFocus
@@ -122,7 +122,18 @@ const SignInSide = () => {
             </Box>
           </Box>
         </Grid>
-      </Grid>
+          </Grid>
+          {alertMessage ? (<Snackbar
+              open={true}
+              onClose={() =>setAlertMessage(null)}
+              anchorOrigin={{ vertical: "bottom", horizontal: "right" }}              
+          >
+              <Alert severity='error' sx={{ width: "100%" }}>
+                  <AlertTitle>Eroare</AlertTitle>
+                  {alertMessage}
+              </Alert>
+          </Snackbar>):null }
+        
     </ThemeProvider>
   );
 }
