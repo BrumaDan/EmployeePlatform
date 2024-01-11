@@ -71,7 +71,11 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         ValidateAudience = false
     });
 
-
+builder.Services.AddAuthorization(opt =>
+{
+    opt.AddPolicy("RequireAdminRole", policy => policy.RequireRole("Admin"));
+    opt.AddPolicy("RequireEmployeeRole", policy => policy.RequireRole("Employee"));
+});
 
 var app = builder.Build();
 
@@ -91,6 +95,22 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+using var scope = app.Services.CreateScope();
+var services = scope.ServiceProvider;
+try
+{
+    var context = services.GetRequiredService<ApplicationDbContext>(); 
+    var userManager = services.GetRequiredService<UserManager<AppUser>>();
+    var roleManager = services.GetRequiredService<RoleManager<AppRole>>();
+    await context.Database.MigrateAsync();
+    await Seed.SeedUsers(userManager ,roleManager);
+}
+catch (Exception ex) 
+{
+    Console.WriteLine(ex.ToString());
+}
+
 
 app.MapFallbackToFile("/index.html");
 

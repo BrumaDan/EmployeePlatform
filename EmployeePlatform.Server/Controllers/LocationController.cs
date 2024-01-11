@@ -15,15 +15,21 @@ namespace EmployeePlatform.Server.Controllers
             this.locationService = locationService;
         }
         [HttpGet]
+        //[Authorize(Policy = "RequireAdminRole")]
         [Authorize]
         [EnableCors]
-        public ActionResult<IEnumerable<LocationModel>> Get()
+        //public ActionResult<IEnumerable<LocationModel>> Get()
+        public IActionResult Get()
         {
-            var locationList = locationService.GetAllLocations();
+            var locationList = locationService.GetAllLocations();            
             return Ok(locationList);
         }
+
+
         // POST api/<CustomersController>
         [HttpPost]
+        //[Authorize(Policy = "RequireAdminRole")]
+        [Authorize]
         [EnableCors]
         public IActionResult Post([FromBody] LocationModel newLocation)
         {

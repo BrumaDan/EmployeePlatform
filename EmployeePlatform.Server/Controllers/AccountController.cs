@@ -6,6 +6,7 @@ using EmployeePlatform.Server.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Data;
 
 namespace EmployeePlatform.Server.Controllers
 {
@@ -33,10 +34,12 @@ namespace EmployeePlatform.Server.Controllers
             {
                 return BadRequest(result.Errors);
             }
-            return new UserDto
+            var roleResult = await _userManager.AddToRoleAsync(user, "Employee");
+            if (!roleResult.Succeeded) return BadRequest(result.Errors);
+                return new UserDto
             {
                 Username = user.UserName,
-                Token = _tokenService.CreateToken(user)
+                Token = await _tokenService.CreateToken(user)
             };
         }
 
@@ -44,14 +47,16 @@ namespace EmployeePlatform.Server.Controllers
 
         public async Task<ActionResult<UserDto>> Login(LoginDto loginDto)
         {
-            var user = await _userManager.Users.SingleOrDefaultAsync(x => x.UserName == loginDto.Username);
+            var user = await _userManager.Users.SingleOrDefaultAsync(x => x.UserName == loginDto.Username);           
             if (user == null) return Unauthorized("invalid username");
             var result = await _userManager.CheckPasswordAsync(user, loginDto.Password);
             if (!result) return Unauthorized("invalid password");
+            var roles = await _userManager.GetRolesAsync(user);
             return new UserDto
             {
                 Username = user.UserName,
-                Token = _tokenService.CreateToken(user)
+                Token = await _tokenService.CreateToken(user),
+                Role = roles
             };
         }
         private async Task<bool> UserExists(string username)
