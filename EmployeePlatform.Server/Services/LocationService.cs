@@ -31,6 +31,15 @@ namespace EmployeePlatform.Server.Services
             var locationModels = mapper.Map<IEnumerable<LocationModel>>(allLocations);
             return locationModels;
         }
+        public bool Exists(Guid id)
+        {
+            return locationRepository.Exists(id);
+        }
+        public void UpdateLocation(LocationModel model)
+        {
+            Location locationToUpdate = mapper.Map<Location>(model);
+            locationRepository.UpdateLocation(locationToUpdate);
+        }
 
     }
 }

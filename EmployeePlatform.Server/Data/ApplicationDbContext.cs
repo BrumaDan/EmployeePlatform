@@ -19,6 +19,7 @@ namespace EmployeePlatform.Server.Data
         {
             base.OnModelCreating(modelBuilder);
 
+            //User
             modelBuilder.Entity<AppUser>()
                 .HasMany(ur => ur.UserRoles)
                 .WithOne(u => u.User)
@@ -31,6 +32,7 @@ namespace EmployeePlatform.Server.Data
              .HasForeignKey(ur => ur.RoleId)
              .IsRequired();
 
+            //Location
             modelBuilder.Entity<Location>(entity =>
             {
                 entity.HasKey(e => e.Id);
@@ -40,7 +42,6 @@ namespace EmployeePlatform.Server.Data
                 entity.HasIndex(e => e.Name, "idx_name");
                 entity.Property(e => e.Description).HasColumnName("description");
             });
-
         }
     }
 }

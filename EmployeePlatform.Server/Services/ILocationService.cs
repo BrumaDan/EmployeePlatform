@@ -5,7 +5,8 @@ namespace EmployeePlatform.Server.Services
     public interface ILocationService
     {
         LocationModel AddLocation(LocationModel newLocation);
+        bool Exists(Guid id);
         IEnumerable<LocationModel> GetAllLocations();
-
+        void UpdateLocation(LocationModel model);
     }
 }

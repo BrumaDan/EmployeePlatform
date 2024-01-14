@@ -23,5 +23,15 @@ namespace EmployeePlatform.Server.Data.Repositories
         {
             return applicationDbContext.Locations;
         }
+        public bool Exists(Guid id)
+        {
+            var exists = applicationDbContext.Locations.Count(x => x.Id == id);
+            return exists == 1;
+        }
+        public void UpdateLocation(Location locationToUpdate)
+        {
+            applicationDbContext.Locations.Update(locationToUpdate);
+            applicationDbContext.SaveChanges();
+        }
     }
 }

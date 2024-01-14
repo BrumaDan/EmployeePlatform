@@ -43,6 +43,23 @@ namespace EmployeePlatform.Server.Controllers
             return CreatedAtAction("Get", new { id = addedLocation.Id }, addedLocation);
         }
 
+        [HttpPut("{id}")]
+        [Authorize]
+        [EnableCors]
+        public IActionResult UpdateLocation(Guid id, [FromBody] LocationModel locationToUpdate)
+        {
+            if (id != locationToUpdate.Id)
+            {
+                return BadRequest();
+            }
+            if (!locationService.Exists(id))
+            {
+                return NotFound();
+            }
+            locationService.UpdateLocation(locationToUpdate);
+            return NoContent();
+        }
+
 
     }
 }
