@@ -26,11 +26,24 @@ namespace EmployeePlatform.Server.Data
                 .HasForeignKey(ur => ur.UserId)
                 .IsRequired();
 
+
+
             modelBuilder.Entity<AppRole>()
              .HasMany(ur => ur.UserRoles)
              .WithOne(u => u.Role)
              .HasForeignKey(ur => ur.RoleId)
              .IsRequired();
+
+            modelBuilder.Entity<AppUser>()
+                .HasMany(loc => loc.UserLocations)
+                .WithOne(usr => usr.User)
+            .HasForeignKey(ur => ur.UserId)
+            .IsRequired();
+            modelBuilder.Entity<Location>()
+                .HasMany(loc => loc.UserLocations)
+                .WithOne(usr => usr.Location)
+                .HasForeignKey(ur => ur.LocationId)
+                .IsRequired();
 
             //Location
             modelBuilder.Entity<Location>(entity =>
@@ -42,6 +55,8 @@ namespace EmployeePlatform.Server.Data
                 entity.HasIndex(e => e.Name, "idx_name");
                 entity.Property(e => e.Description).HasColumnName("description");
             });
+
+
         }
     }
 }

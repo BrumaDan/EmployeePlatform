@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
+using System.Text.Json;
 
 namespace EmployeePlatform.Server.Controllers
 {
@@ -34,7 +35,7 @@ namespace EmployeePlatform.Server.Controllers
             {
                 return BadRequest(result.Errors);
             }
-            var roleResult = await _userManager.AddToRoleAsync(user, "Employee");
+            var roleResult = await _userManager.AddToRoleAsync(user, registerDto.Role);
             if (!roleResult.Succeeded) return BadRequest(result.Errors);
                 return new UserDto
             {
@@ -58,6 +59,20 @@ namespace EmployeePlatform.Server.Controllers
                 Token = await _tokenService.CreateToken(user),
                 Role = roles
             };
+        }
+        [HttpGet("users")]
+        public async Task<ActionResult<List<AppUser>>> GetEmployees()
+        {
+            var users = await _userManager.Users.Include(x=>x.UserRoles).ThenInclude(x=>x.Role).ToListAsync();
+            var employees = users.Where(x => x.UserRoles.Any(x => x.Role.Name == "Employee")).Select(x => new
+            {
+                UserName = x.UserName,
+                FirstName = x.FirstName,
+                LastName = x.LastName,
+                Role = x.UserRoles.Select(x => x.Role.Name)
+            });
+           //var test = employees.Select(x=>JsonSerializer.Serialize(x)).ToList();
+            return Ok(employees);
         }
         private async Task<bool> UserExists(string username)
         {
