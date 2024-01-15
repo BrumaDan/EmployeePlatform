@@ -309,7 +309,11 @@ const LocationsHomePage = () => {
             setValidationErrors(newValidationErrors);
             return;
         }
-        setValidationErrors        
+        setValidationErrors({});    
+        console.log(values);
+        axios.put(`/api/Location/${values.id}`, {...values}, config)
+            .then(res => { mutate({ ...data, values }); console.log(res) })
+            .catch(err => { console.log(`${err.response.data}`) })    
         table.setEditingRow(null); //exit editing mode
     };
 
