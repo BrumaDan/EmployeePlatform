@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import {  useMemo, useState } from 'react';
 import {
     MRT_EditActionButtons,
     MaterialReactTable,
@@ -17,7 +17,7 @@ import {
    IconButton,
     Tooltip,
 } from '@mui/material';
-//import useSWR from "swr";
+import useSWR from "swr";
 import useAuthStore from '../../store/AuthStore';
 import EditIcon from '@mui/icons-material/Edit';
 import axios from 'axios';
@@ -138,21 +138,23 @@ const LocationsHomePage = () => {
         Record<string, string | undefined>
         >({});
     const userToken = useAuthStore((state) => state.token);
-    const [data, setData] = useState<Location[]>([]) 
+    //const [data, setData] = useState<Location[]>([]) 
     const config = {
         headers: {
             'Authorization': `Bearer ${userToken}`,            
         }
     }
 
-    useEffect(() => {
-        axios.get("/api/Location", config).then(res => setData(res.data)).catch(err => console.log(err))
-    }, [])
+    const fetcher = (url: string) => fetch(url, {
+        headers: {
+            'Authorization': `Bearer ${userToken}`,
+        }
+    }).then((response) => response.json());
+    
 
-    //const getLocationsUrl = "/api/Location";
-    //const { data, mutate, error, isLoading } = useSWR(getLocationsUrl, (url: string) => fetcher(url));
-    //const { data, error, isLoading } = useSWR(getLocationsUrl, (url: string) => fetcher(url));    
-    //console.log(data)
+   
+    const { data, error, isLoading , mutate } = useSWR("/api/Location", (url: string) => fetcher(url), { fallbackData: {data:[]} });    
+   
     const columns = useMemo<MRT_ColumnDef<Location>[]>(
         () => [
             {
@@ -291,7 +293,7 @@ const LocationsHomePage = () => {
         }
         setValidationErrors({});            
         axios.post('/api/Location', { ...values, id:`00000000-0000-0000-0000-000000000000` } , config)
-            .then(res => console.log(res))
+            .then(res => { mutate({ ...data, values }); console.log(res) })
             .catch(err => { console.log(`${err.response.data}`) })         
         //console.log(values)
         table.setCreatingRow(null); //exit creating mode
@@ -399,15 +401,15 @@ const LocationsHomePage = () => {
             </Button>
         ),
         state: {
-            //isLoading: isLoading,
+            isLoading: isLoading,
             //isSaving: isCreatingUser || isUpdatingUser || isDeletingUser,
-            //showAlertBanner: isLoadingUsersError,
-            //showProgressBars: isLoading,
+            showAlertBanner: error,
+            showProgressBars: isLoading,
         },
     });
 
 
-    return <MaterialReactTable table={table} />;    
+    return    <MaterialReactTable table={table} />;    
         
     
 };
