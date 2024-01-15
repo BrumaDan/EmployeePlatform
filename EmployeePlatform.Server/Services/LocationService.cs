@@ -40,6 +40,12 @@ namespace EmployeePlatform.Server.Services
             Location locationToUpdate = mapper.Map<Location>(model);
             locationRepository.UpdateLocation(locationToUpdate);
         }
+        public bool DeleteLocation(Guid id)
+        {
+            var itemToDelete = locationRepository.GetLocationById(id);
+            return locationRepository.DeleteLocation(itemToDelete);
+        }
+
 
     }
 }

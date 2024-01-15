@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace EmployeePlatform.Server.Controllers
 {
-    public class LocationController:BaseApiController
+    public class LocationController : BaseApiController
     {
         private readonly ILocationService locationService;
 
@@ -14,14 +14,14 @@ namespace EmployeePlatform.Server.Controllers
         {
             this.locationService = locationService;
         }
+
+
         [HttpGet]
-        //[Authorize(Policy = "RequireAdminRole")]
         [Authorize]
         [EnableCors]
-        //public ActionResult<IEnumerable<LocationModel>> Get()
         public IActionResult Get()
         {
-            var locationList = locationService.GetAllLocations();            
+            var locationList = locationService.GetAllLocations();
             return Ok(locationList);
         }
 
@@ -59,7 +59,19 @@ namespace EmployeePlatform.Server.Controllers
             locationService.UpdateLocation(locationToUpdate);
             return NoContent();
         }
-
+        [HttpDelete("{id}")]
+        [Authorize]
+        [EnableCors]
+        public IActionResult DeleteLocation(Guid id)
+        {
+            if (!locationService.Exists(id))
+            {
+                return NotFound();
+            }
+            var isDelted = locationService.DeleteLocation(id);
+            return NoContent();
+        }
 
     }
 }
+  

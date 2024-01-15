@@ -33,5 +33,16 @@ namespace EmployeePlatform.Server.Data.Repositories
             applicationDbContext.Locations.Update(locationToUpdate);
             applicationDbContext.SaveChanges();
         }
+        public bool DeleteLocation(Location locationToDelete)
+        {
+            var deletedLocation = applicationDbContext.Locations.Remove(locationToDelete);
+            applicationDbContext.SaveChanges();
+            return deletedLocation != null;
+        }
+        public Location GetLocationById(Guid id)
+        {
+            var location = applicationDbContext.Locations.FirstOrDefault(x => x.Id == id);
+            return location;
+        }
     }
 }
