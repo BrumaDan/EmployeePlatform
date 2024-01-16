@@ -4,6 +4,6 @@ namespace EmployeePlatform.Server.Data.IRepository
 {
     public interface IUserLocationRepository
     {
-        AppUserLocation AssignUserToLocation(AppUserLocation newUserLocationAssisgnment);
+        AppUserLocation AssignUserToLocation(AppUserLocation newAppUserLocation);
     }
 }

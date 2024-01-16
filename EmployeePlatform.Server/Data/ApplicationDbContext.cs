@@ -13,7 +13,7 @@ namespace EmployeePlatform.Server.Data
            : base(options) { }
 
         public virtual DbSet<Location> Locations { get; set; }
-        public virtual DbSet<AppUserLocation> AppUserLocations { get; set; }
+        public virtual DbSet<AppUserLocation> AppUserLocation { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

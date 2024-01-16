@@ -38,12 +38,12 @@ function validateUser(user: User) {
 }
 
 type User = {
-    id: string,
-    userName: string,
-    password:string,
-    firstName: string,
-    lastName: string,
-    role:string[]
+    Id: string,
+    UserName: string,
+    Password:string,
+    FirstName: string,
+    LastName: string,
+    Role:string[]
 }
 
 

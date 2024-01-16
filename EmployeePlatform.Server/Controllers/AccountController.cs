@@ -73,6 +73,7 @@ namespace EmployeePlatform.Server.Controllers
             var users = await _userManager.Users.Include(x=>x.UserRoles).ThenInclude(x=>x.Role).ToListAsync();
             var employees = users.Where(x => x.UserRoles.Any(x => x.Role.Name == "Employee")).Select(x => new
             {
+                Id= x.Id,
                 UserName = x.UserName,
                 FirstName = x.FirstName,
                 LastName = x.LastName,
