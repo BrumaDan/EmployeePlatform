@@ -42,9 +42,12 @@ builder.Services.AddControllers();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddAutoMapper(typeof(LocationProfile));
 builder.Services.AddAutoMapper(typeof(AppUserProfile));
+builder.Services.AddAutoMapper(typeof(UserLocationProfile));
 //Location wiring
 builder.Services.AddScoped<ILocationRepository, LocationRepository>();
 builder.Services.AddScoped<ILocationService, LocationService>();
+builder.Services.AddScoped<IUserLocationRepository, UserLocationRepository>();
+builder.Services.AddScoped<IUserLocationService, UserLocationService>();
 //builder.Services.AddScoped<IAppUserRepository, AppUserRepository>();
 //builder.Services.AddScoped<IAppUserService, AppUserService>();
 builder.Services.AddScoped<ITokenService, TokenService>();

@@ -20,13 +20,14 @@ namespace EmployeePlatform.Server.Controllers
         private readonly UserManager<AppUser> _userManager;
         private readonly ITokenService _tokenService;
         private readonly IMapper mapper;
-        private readonly IUserLocationService userLocationService;
+        
        
-        public AccountController(ITokenService service, IMapper mapper, UserManager<AppUser> userManager)
+        public AccountController(ITokenService service, IMapper mapper, UserManager<AppUser> userManager )
         {
             _tokenService = service;
             this.mapper = mapper;
             _userManager = userManager;
+           
         }
 
         [HttpPost("register")]
@@ -85,20 +86,5 @@ namespace EmployeePlatform.Server.Controllers
             return await _userManager.Users.AnyAsync(x => x.UserName == username.ToLower());
         }
         
-        [HttpPost("assignLocation")]
-        //[Authorize(Policy = "RequireAdminRole")]
-        [Authorize]
-        [EnableCors]
-        public IActionResult Post([FromBody] UserLocationModel newLocationAssignment)
-        {
-
-            if (!ModelState.IsValid)
-            {
-                return BadRequest();
-            }
-            var assignedLocation = userLocationService.AssignUserToLocation(newLocationAssignment);
-
-            return CreatedAtAction("Get", new { id = assignedLocation.Id }, assignedLocation);
-        }
     }
 }

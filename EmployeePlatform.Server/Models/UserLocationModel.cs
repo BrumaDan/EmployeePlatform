@@ -6,7 +6,7 @@ namespace EmployeePlatform.Server.Models
     {
         public Guid UserId { get; set; }
         public Guid LocationId { get; set; }
-        public AppUser User { get; set; }
-        public Location Location { get; set; }
+        //public AppUser User { get; set; }
+        //public Location Location { get; set; }
     }
 }

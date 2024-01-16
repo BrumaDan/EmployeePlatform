@@ -15,6 +15,7 @@ namespace EmployeePlatform.Server.Data.Repositories
         }
         public AppUserLocation AssignUserToLocation(AppUserLocation newUserLocationAssisgnment)
         {
+
             var addedAssignment = applicationDbContext.Add(newUserLocationAssisgnment);
             applicationDbContext.SaveChanges();
             return addedAssignment.Entity;
