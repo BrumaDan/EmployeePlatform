@@ -3,6 +3,10 @@ using EmployeePlatform.Server.Data;
 using EmployeePlatform.Server.DomainModel;
 using EmployeePlatform.Server.DTOs;
 using EmployeePlatform.Server.Interfaces;
+using EmployeePlatform.Server.Models;
+using EmployeePlatform.Server.Services;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -16,6 +20,8 @@ namespace EmployeePlatform.Server.Controllers
         private readonly UserManager<AppUser> _userManager;
         private readonly ITokenService _tokenService;
         private readonly IMapper mapper;
+        private readonly IUserLocationService userLocationService;
+       
         public AccountController(ITokenService service, IMapper mapper, UserManager<AppUser> userManager)
         {
             _tokenService = service;
@@ -73,10 +79,26 @@ namespace EmployeePlatform.Server.Controllers
             });
            //var test = employees.Select(x=>JsonSerializer.Serialize(x)).ToList();
             return Ok(employees);
-        }
+        }        
         private async Task<bool> UserExists(string username)
         {
             return await _userManager.Users.AnyAsync(x => x.UserName == username.ToLower());
+        }
+        
+        [HttpPost("assignLocation")]
+        //[Authorize(Policy = "RequireAdminRole")]
+        [Authorize]
+        [EnableCors]
+        public IActionResult Post([FromBody] UserLocationModel newLocationAssignment)
+        {
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+            var assignedLocation = userLocationService.AssignUserToLocation(newLocationAssignment);
+
+            return CreatedAtAction("Get", new { id = assignedLocation.Id }, assignedLocation);
         }
     }
 }

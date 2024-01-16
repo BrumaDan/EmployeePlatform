@@ -13,6 +13,7 @@ namespace EmployeePlatform.Server.Data
            : base(options) { }
 
         public virtual DbSet<Location> Locations { get; set; }
+        public virtual DbSet<AppUserLocation> AppUserLocations { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -27,7 +28,6 @@ namespace EmployeePlatform.Server.Data
                 .IsRequired();
 
 
-
             modelBuilder.Entity<AppRole>()
              .HasMany(ur => ur.UserRoles)
              .WithOne(u => u.Role)
@@ -37,8 +37,9 @@ namespace EmployeePlatform.Server.Data
             modelBuilder.Entity<AppUser>()
                 .HasMany(loc => loc.UserLocations)
                 .WithOne(usr => usr.User)
-            .HasForeignKey(ur => ur.UserId)
-            .IsRequired();
+                .HasForeignKey(ur => ur.UserId)
+                .IsRequired();
+
             modelBuilder.Entity<Location>()
                 .HasMany(loc => loc.UserLocations)
                 .WithOne(usr => usr.Location)
