@@ -19,7 +19,7 @@ import {
     Tooltip,
 } from '@mui/material';
 //import useSWR from "swr";
-import useAuthStore from '../../store/AuthStore';
+import { useAuthStore } from '../../store/AuthStore';
 import EditIcon from '@mui/icons-material/Edit';
 import axios from 'axios';
 

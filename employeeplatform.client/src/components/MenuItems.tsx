@@ -6,7 +6,7 @@ import DashboardIcon from '@mui/icons-material/Dashboard';
 import EditNoteIcon from '@mui/icons-material/EditNote';
 import PersonIcon from '@mui/icons-material/Person';
 import StorefrontIcon from '@mui/icons-material/Storefront';
-import useAuthStore from '../store/AuthStore';
+import { useAuthStore } from '../store/AuthStore';
 import { Link } from 'react-router-dom'
 
 const menuOptions = [

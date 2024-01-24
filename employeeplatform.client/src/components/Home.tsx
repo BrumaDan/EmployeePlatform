@@ -12,7 +12,9 @@ import Container from '@mui/material/Container';
 import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import MenuItems from './MenuItems';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useNavigate } from 'react-router-dom';
+import LogoutIcon from '@mui/icons-material/Logout';
+import { useAuthStore } from '../store/AuthStore';
 
 
 const drawerWidth: number = 240;
@@ -68,10 +70,17 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 // TODO remove, this demo shouldn't need to reset the theme.
 const defaultTheme = createTheme();
 function Home() {
+    const resetToken = useAuthStore((state) => state.reset);
+    const navigate = useNavigate(); 
     const [open, setOpen] = React.useState(true);
     const toggleDrawer = () => {
         setOpen(!open);
     };
+
+    function handleLogOut(): void {
+        resetToken();
+        navigate("/");
+    }
 
     return (
         <ThemeProvider theme={defaultTheme}>
@@ -80,9 +89,17 @@ function Home() {
                 <AppBar position="absolute" open={open}>
                     <Toolbar
                         sx={{
+                            justifyContent: "space-between",
+                            flexDirection: "row-reverse",
                             pr: '24px', // keep right padding when drawer closed
                         }}
                     >
+             
+                        <IconButton onClick={handleLogOut} size="large" color="inherit" edge="end"
+                        >
+
+                           <LogoutIcon/>
+                        </IconButton>
                         <IconButton
                             edge="start"
                             color="inherit"
@@ -95,20 +112,7 @@ function Home() {
                         >
                             <MenuIcon />
                         </IconButton>
-                        {/*<Typography*/}
-                        {/*    component="h1"*/}
-                        {/*    variant="h6"*/}
-                        {/*    color="inherit"*/}
-                        {/*    noWrap*/}
-                        {/*    sx={{ flexGrow: 1 }}*/}
-                        {/*>*/}
-                        {/*    Dashboard*/}
-                        {/*</Typography>*/}
-                        {/*  <IconButton color="inherit">*/}
-                        {/*<Badge badgeContent={4} color="secondary">*/}
-                        {/*    <NotificationsIcon />*/}
-                        {/*</Badge>*/}
-                        {/*</IconButton>*/}
+    
                     </Toolbar>
                 </AppBar>
                 <Drawer variant="permanent" open={open}>
@@ -147,6 +151,7 @@ function Home() {
                     </Container>
                 </Box>
             </Box>
+
         </ThemeProvider>
     );
 }
