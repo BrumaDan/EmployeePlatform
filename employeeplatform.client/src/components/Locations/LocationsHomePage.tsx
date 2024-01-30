@@ -7,6 +7,7 @@ import {
     //type MRT_Row,
     type MRT_TableOptions,
     useMaterialReactTable,
+    MRT_Row,
 } from 'material-react-table';
 import {
     Box,
@@ -18,9 +19,11 @@ import {
     Tooltip,
 } from '@mui/material';
 import useSWR from "swr";
-import useAuthStore from '../../store/AuthStore';
+import { useAuthStore } from '../../store/AuthStore';
 import EditIcon from '@mui/icons-material/Edit';
 import axios from 'axios';
+import DeleteIcon from '@mui/icons-material/Delete';
+
 
 const validateRequired = (value: string) => !!value.length;
 const validateInteger = (intValue: string) => Number.isNaN(parseInt(intValue))
@@ -50,88 +53,7 @@ type Location = {
     postalCode:string
 }
 
-//function useCreateUser() {
-   
-    
-//    return useMutation({
-//        mutationFn: async (user: User) => {
-//            //send api update request here
-//            await new Promise((resolve) => setTimeout(resolve, 1000)); //fake api call
-//            return Promise.resolve();
-//        },
-//        //client side optimistic update
-//        onMutate: (newUserInfo: User) => {
-//            queryClient.setQueryData(
-//                ['users'],
-//                (prevUsers: any) =>
-//                    [
-//                        ...prevUsers,
-//                        {
-//                            ...newUserInfo,
-//                            id: (Math.random() + 1).toString(36).substring(7),
-//                        },
-//                    ] as User[],
-//            );
-//        },
-//        // onSettled: () => queryClient.invalidateQueries({ queryKey: ['users'] }), //refetch users after mutation, disabled for demo
-//    });
-//}
-//READ hook (get users from api)
-//function useGetUsers() {
-//    return useQuery<User[]>({
-//        queryKey: ['users'],
-//        queryFn: async () => {
-//            //send api request here
-//            await new Promise((resolve) => setTimeout(resolve, 1000)); //fake api call
-//            return Promise.resolve(fakeData);
-//        },
-//        refetchOnWindowFocus: false,
-//    });
-//}
 
-//UPDATE hook (put user in api)
-//function useUpdateUser() {
-//    const queryClient = useQueryClient();
-//    return useMutation({
-//        mutationFn: async (user: User) => {
-//            //send api update request here
-//            await new Promise((resolve) => setTimeout(resolve, 1000)); //fake api call
-//            return Promise.resolve();
-//        },
-//        //client side optimistic update
-//        onMutate: (newUserInfo: User) => {
-//            queryClient.setQueryData(
-//                ['users'],
-//                (prevUsers: any) =>
-//                    prevUsers?.map((prevUser: User) =>
-//                        prevUser.id === newUserInfo.id ? newUserInfo : prevUser,
-//                    ),
-//            );
-//        },
-//        // onSettled: () => queryClient.invalidateQueries({ queryKey: ['users'] }), //refetch users after mutation, disabled for demo
-//    });
-//}
-
-//DELETE hook (delete user in api)
-//function useDeleteUser() {
-//    const queryClient = useQueryClient();
-//    return useMutation({
-//        mutationFn: async (userId: string) => {
-//            //send api update request here
-//            await new Promise((resolve) => setTimeout(resolve, 1000)); //fake api call
-//            return Promise.resolve();
-//        },
-//        //client side optimistic update
-//        onMutate: (userId: string) => {
-//            queryClient.setQueryData(
-//                ['users'],
-//                (prevUsers: any) =>
-//                    prevUsers?.filter((user: User) => user.id !== userId),
-//            );
-//        },
-//        // onSettled: () => queryClient.invalidateQueries({ queryKey: ['users'] }), //refetch users after mutation, disabled for demo
-//    });fetcher
-//}
 
 const LocationsHomePage = () => {
     const [validationErrors, setValidationErrors] = useState<
@@ -264,24 +186,7 @@ const LocationsHomePage = () => {
         [validationErrors],
     );
 
-    //call CREATE hook
-    //const { mutateAsync: createUser, isPending: isCreatingUser } =
-    //    useCreateUser();
-    //call READ hook
-    //const {
-    //    data: fetchedUsers = [],
-    //    isError: isLoadingUsersError,
-    //    isFetching: isFetchingUsers,
-    //    isLoading: isLoadingUsers,
-    //} = useGetUsers();
-    //call UPDATE hook
-    //const { mutateAsync: updateUser, isPending: isUpdatingUser } =
-    //    useUpdateUser();
-    //call DELETE hook
-    //const { mutateAsync: deleteUser, isPending: isDeletingUser } =
-    //    useDeleteUser();
 
-    //CREATE action
     const handleCreateUser: MRT_TableOptions<Location>['onCreatingRowSave'] = async ({
         values,
         table,
@@ -317,12 +222,25 @@ const LocationsHomePage = () => {
         table.setEditingRow(null); //exit editing mode
     };
 
+
+   
     //DELETE action
-    //const openDeleteConfirmModal = (row: MRT_Row<Location>) => {
-    //    if (window.confirm('Are you sure you want to delete this user?')) {
-    //        deleteUser(row.original.id);
-    //    }
-    //};
+    const openDeleteConfirmModal = (row: MRT_Row<Location>) => {
+        if (window.confirm('Are you sure you want to delete this user?')) {
+            deleteUser(row.original.id);
+          
+        }
+    };
+    function deleteUser(id: string) {
+        axios.delete(`/api/Location/${id}`, config)
+            .then(res => {
+                mutate({ ...data, data });
+                console.log(res);
+            })
+            .catch(err => {
+                console.log(`${err.response.data}`);
+            });
+    }
 
     const table = useMaterialReactTable({
         columns,
@@ -331,21 +249,12 @@ const LocationsHomePage = () => {
         editDisplayMode: 'modal', //default ('row', 'cell', 'table', and 'custom' are also available)
         enableEditing: true,
         getRowId: (row) => row.id,
-        //muiToolbarAlertBannerProps: isLoadingUsersError
-        //    ? {
-        //        color: 'error',
-        //        children: 'Error loading data',
-        //    }
-        //    : undefined,
-        //muiTableContainerProps: {
-        //    sx: {
-        //        minHeight: '500px',
-        //    },
-        //},
+
         onCreatingRowCancel: () => setValidationErrors({}),
         onCreatingRowSave: handleCreateUser,
         onEditingRowCancel: () => setValidationErrors({}),
         onEditingRowSave: handleSaveUser,
+    
         //optionally customize modal content
         renderCreateRowDialogContent: ({ table, row, internalEditComponents }) => (
             <>
@@ -381,11 +290,11 @@ const LocationsHomePage = () => {
                         <EditIcon />
                     </IconButton>
                 </Tooltip>
-                {/*<Tooltip title="Delete">*/}
-                {/*    <IconButton color="error" onClick={() => openDeleteConfirmModal(row)}>*/}
-                {/*        <DeleteIcon />*/}
-                {/*    </IconButton>*/}
-                {/*</Tooltip>*/}
+                <Tooltip title="Delete">
+                    <IconButton color="error" onClick={() => openDeleteConfirmModal(row)}>
+                        <DeleteIcon />
+                    </IconButton>
+                </Tooltip>
             </Box>
         ),
         renderTopToolbarCustomActions: ({ table }) => (
@@ -418,3 +327,5 @@ const LocationsHomePage = () => {
     
 };
 export default LocationsHomePage
+
+

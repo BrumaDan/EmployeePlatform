@@ -1,11 +1,19 @@
 import { create } from 'zustand'
 import { devtools, persist } from 'zustand/middleware'
 
-type State = {
-    userName: string 
+
+export type State = { 
+    userName: string
     token: string
     isAuthenticated: boolean
-    role:string[]
+    role: string[]
+}
+// define the initial state
+const initialState: State = {
+    userName: '',
+    isAuthenticated: false,
+    token: '',
+    role: []
 }
 
 type Action = {
@@ -13,25 +21,26 @@ type Action = {
     setIsAuthenticated: (isAuthenticated: State['isAuthenticated']) => void
     setToken: (token: State['token']) => void
     setRole: (role: State['role']) => void
+    reset: () => void
 }
 
-const useAuthStore = create<State & Action>()(
+export const useAuthStore = create<State & Action>()(
     devtools(
         persist(
             (set) => ({
-                userName: '',
-                isAuthenticated: false,
-                token: '',
-                role: [],
+            ...initialState,
                 setToken: (inputToken: string) => set(() => ({ token: inputToken })),
                 setRole: (inputRole: string[]) => set(() => ({ role: inputRole })),
                 setUserName: (inputUserName: string) => set(() => ({ userName: inputUserName })),
                 setIsAuthenticated: (input: boolean) => set(() => ({ isAuthenticated: input })),
+                reset: () => {
+                    set(initialState)
+                },
             }),
             { name: 'authStore' },
         ),
     ),
 )
-    
 
-export default useAuthStore;
+
+
