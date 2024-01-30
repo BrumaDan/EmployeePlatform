@@ -27,7 +27,6 @@ import axios from 'axios';
 const validateRequired = (value: string) => !!value.length;
 
 function validateUser(user: User) {
-    console.log(user)
     return {
         FirtName: !validateRequired(user.FirstName)
             ? 'Name is Required'
@@ -43,8 +42,11 @@ type User = {
     Password:string,
     FirstName: string,
     LastName: string,
-    Role:string[]
+    Role: string[]
+    location: Location[]
 }
+
+type Location = { name: string, id: string, city: string }
 
 
 
@@ -53,15 +55,17 @@ const EmployeesHomePage = () => {
         Record<string, string | undefined>
     >({});
     const userToken = useAuthStore((state) => state.token);
-    const [data, setData] = useState<User[]>([])
+    const [usersList, setUsersList] = useState<User[]>([])
+    const [locationsOptions, setLocationOptions] = useState<Location[]>([])
     const config = {
         headers: {
             'Authorization': `Bearer ${userToken}`,
         }
-    }
+    }            
 
     useEffect(() => {
-        axios.get("/api/Account/users", config).then(res => { setData(res.data);console.log(res)}).catch(err => console.log(err))
+        axios.get("/api/Account/users", config).then(res => { setUsersList(res.data) }).catch(err => console.log(err))
+        axios.get("/api/Location", config).then(res => { setLocationOptions(res.data) }).catch(err => console.log(err))
     }, [])
 
     //const getLocationsUrl = "/api/Location";
@@ -88,10 +92,13 @@ const EmployeesHomePage = () => {
                 },
             },
             {
-                accessorKey: 'password',
-                header: 'Password',
+                accessorFn: (row: User) => row.location[0].name,
+                //accessorKey: 'userName',
+                header: 'Locatie',
+                editVariant: 'select',
+                editSelectOptions: locationsOptions.map(location => { return { label: location.name, text: location.id, value:location.name} }),
                 muiEditTextFieldProps: {
-                    type: 'string',
+                    select: true,
                     required: true,
                     error: !!validationErrors?.name,
                     helperText: validationErrors?.name,
@@ -104,6 +111,23 @@ const EmployeesHomePage = () => {
                     //optionally add validation checking for onBlur or onChange
                 },
             },
+            //{
+            //    accessorKey: 'password',
+            //    header: 'Password',
+            //    muiEditTextFieldProps: {
+            //        type: 'string',
+            //        required: true,
+            //        error: !!validationErrors?.name,
+            //        helperText: validationErrors?.name,
+            //        //remove any previous validation errors when user focuses on the input
+            //        onFocus: () =>
+            //            setValidationErrors({
+            //                ...validationErrors,
+            //                name: undefined,
+            //            }),
+            //        //optionally add validation checking for onBlur or onChange
+            //    },
+            //},
             {
                 accessorKey: 'firstName',
                 header: 'First Name',
@@ -137,22 +161,22 @@ const EmployeesHomePage = () => {
                         }),
                 },
             },
-            {
-                accessorKey: 'role',
-                header: 'User Role',
-                muiEditTextFieldProps: {
-                    type: 'string',
-                    required: true,
-                    error: !!validationErrors?.description,
-                    helperText: validationErrors?.description,
-                    //remove any previous validation errors when user focuses on the input
-                    onFocus: () =>
-                        setValidationErrors({
-                            ...validationErrors,
-                            description: undefined,
-                        }),
-                },
-            },
+            //{
+            //    accessorKey: 'role',
+            //    header: 'User Role',
+            //    muiEditTextFieldProps: {
+            //        type: 'string',
+            //        required: true,
+            //        error: !!validationErrors?.description,
+            //        helperText: validationErrors?.description,
+            //        //remove any previous validation errors when user focuses on the input
+            //        onFocus: () =>
+            //            setValidationErrors({
+            //                ...validationErrors,
+            //                description: undefined,
+            //            }),
+            //    },
+            //},
         ],
         [validationErrors],
     );
@@ -182,6 +206,7 @@ const EmployeesHomePage = () => {
         values,
         table,
     }) => {
+        console.log(values)
         const newValidationErrors = validateUser(values);
         if (Object.values(newValidationErrors).some((error) => error)) {
             setValidationErrors(newValidationErrors);
@@ -200,7 +225,7 @@ const EmployeesHomePage = () => {
 
     const table = useMaterialReactTable({
         columns,
-        data: data,
+        data: usersList,
         createDisplayMode: 'modal', //default ('row', and 'custom' are also available)
         editDisplayMode: 'modal', //default ('row', 'cell', 'table', and 'custom' are also available)
         enableEditing: true,
@@ -237,10 +262,12 @@ const EmployeesHomePage = () => {
         //optionally customize modal content
         renderEditRowDialogContent: ({ table, row, internalEditComponents }) => (
             <>
+                {console.log(internalEditComponents)}
                 <DialogTitle variant="h3">Edit User</DialogTitle>
                 <DialogContent
                     sx={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}
                 >
+                    
                     {internalEditComponents} {/* or render custom edit components here */}
                 </DialogContent>
                 <DialogActions>

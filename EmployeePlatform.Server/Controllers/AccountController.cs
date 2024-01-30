@@ -70,16 +70,17 @@ namespace EmployeePlatform.Server.Controllers
         [HttpGet("users")]
         public async Task<ActionResult<List<AppUser>>> GetEmployees()
         {
-            var users = await _userManager.Users.Include(x=>x.UserRoles).ThenInclude(x=>x.Role).ToListAsync();
+            var users = await _userManager.Users.Include(user=> user.UserRoles).ThenInclude(user => user.Role)
+                .Include(user=> user.UserLocations).ThenInclude(ul=>ul.Location).ToListAsync();
             var employees = users.Where(x => x.UserRoles.Any(x => x.Role.Name == "Employee")).Select(x => new
             {
                 Id= x.Id,
                 UserName = x.UserName,
                 FirstName = x.FirstName,
                 LastName = x.LastName,
+                Location = x.UserLocations.Select(x=> new {Name= x.Location.Name, Id= x.Location.Id, City= x.Location.City }),                
                 Role = x.UserRoles.Select(x => x.Role.Name)
-            });
-           //var test = employees.Select(x=>JsonSerializer.Serialize(x)).ToList();
+            });           
             return Ok(employees);
         }        
         private async Task<bool> UserExists(string username)
