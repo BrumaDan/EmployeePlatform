@@ -19,64 +19,53 @@ import {
     Tooltip,
 } from '@mui/material';
 import useSWR from "swr";
-import { useAuthStore } from '../../store/AuthStore';
 import EditIcon from '@mui/icons-material/Edit';
 import axios from 'axios';
 import DeleteIcon from '@mui/icons-material/Delete';
 import fetcher from '../Common/fetcher';
 
 
+
 const validateRequired = (value: string) => !!value.length;
 const validateInteger = (intValue: string) => Number.isNaN(parseInt(intValue))
    
 
-function validateLocation(location: Location) {
-    console.log(location)
+function validateLocation(location: Location) {    
     return {
-        name: !validateRequired(location.name)
+        name: !validateRequired(location.Name)
             ? 'Name is Required'
             : '',
-        description: !validateRequired(location.description) ? 'Description is Required' : '',
-        city: !validateRequired(location.city) ? 'City is Required' : '',
-        street: !validateRequired(location.street) ? 'Street is Required' : '',
-        streetNumber: validateInteger(location.streetNumber) ? 'Incorrect Data Type' : '',
-        postalCode: validateInteger(location.postalCode) ?'Incorrect Data Type': '',
+        description: !validateRequired(location.Description) ? 'Description is Required' : '',
+        city: !validateRequired(location.City) ? 'City is Required' : '',
+        street: !validateRequired(location.Street) ? 'Street is Required' : '',
+        streetNumber: validateInteger(location.StreetNumber) ? 'Incorrect Data Type' : '',
+        postalCode: validateInteger(location.PostalCode) ?'Incorrect Data Type': '',
     };
 }
 
 type Location = {
-    id:string,
-    name: string,
-    description: string,
-    streetNumber: string,
-    street: string,
-    city: string,
-    postalCode:string
+    Id:string,
+    Name: string,
+    Description: string,
+    StreetNumber: string,
+    Street: string,
+    City: string,
+    PostalCode:string
 }
-
-
 
 const LocationsHomePage = () => {
     const [validationErrors, setValidationErrors] = useState<
         Record<string, string | undefined>
         >({});
-    const userToken = useAuthStore((state) => state.token);
+    //const userToken = useAuthStore((state) => state.token);
 
-
-
-    const locationURL= "/api/Location";
-    const { data, error, isLoading, mutate } = useSWR(locationURL, (url: string) => fetcher(url, userToken));    
+    const locationURL = "/api/Location";    
+    const { data, error, isLoading, mutate } = useSWR(locationURL, (url: string) => fetcher(url), { fallbackData: { data: [] }});    
    
     const columns = useMemo<MRT_ColumnDef<Location>[]>(
-        () => [
+        () => [         
             {
-                accessorKey: 'id',
-                header: 'Id',
-                enableEditing: false,
-                size: 80,
-            },
-            {
-                accessorKey: 'name',
+                accessorKey: 'Name',
                 header: 'Name',
                 muiEditTextFieldProps: {
                     type: 'string',
@@ -93,7 +82,7 @@ const LocationsHomePage = () => {
                 },
             },
             {
-                accessorKey: 'description',
+                accessorKey: 'Description',
                 header: 'Description',
                 muiEditTextFieldProps: {
                     type: 'string',
@@ -109,7 +98,7 @@ const LocationsHomePage = () => {
                 },
             },
             {
-                accessorKey: 'streetNumber',
+                accessorKey: 'StreetNumber',
                 header: 'Street Number',
                 muiEditTextFieldProps: {
                     type: 'int',
@@ -125,7 +114,7 @@ const LocationsHomePage = () => {
                 },
             },
             {
-                accessorKey: 'street',
+                accessorKey: 'Street',
                 header: 'Street',
                 muiEditTextFieldProps: {
                     type: 'int',
@@ -141,7 +130,7 @@ const LocationsHomePage = () => {
                 },
             },
             {
-                accessorKey: 'city',
+                accessorKey: 'City',
                 header: 'City',
                 muiEditTextFieldProps: {
                     type: 'string',
@@ -157,7 +146,7 @@ const LocationsHomePage = () => {
                 },
             },
             {
-                accessorKey: 'postalCode',
+                accessorKey: 'PostalCode',
                 header: 'Postal Code',
                 muiEditTextFieldProps: {
                     type: 'int',
@@ -186,11 +175,10 @@ const LocationsHomePage = () => {
             setValidationErrors(newValidationErrors);
             return;
         }
-        setValidationErrors({});            
-        axios.post('/api/Location', { ...values, id:`00000000-0000-0000-0000-000000000000` } , config)
+        setValidationErrors({});                    
+        axios.post('/api/Location', { ...values})
             .then(res => { mutate({ ...data, values }); console.log(res) })
-            .catch(err => { console.log(`${err.response.data}`) })         
-        //console.log(values)
+            .catch(err => { console.log(`${err.response.data}`) })                 
         table.setCreatingRow(null); //exit creating mode
     };
 
@@ -206,7 +194,7 @@ const LocationsHomePage = () => {
         }
         setValidationErrors({});    
         console.log(values);
-        axios.put(`/api/Location/${values.id}`, {...values}, config)
+        axios.put(`/api/Location/${values.Id}`, {...values})
             .then(res => { mutate({ ...data, values }); console.log(res) })
             .catch(err => { console.log(`${err.response.data}`) })    
         table.setEditingRow(null); //exit editing mode
@@ -217,12 +205,12 @@ const LocationsHomePage = () => {
     //DELETE action
     const openDeleteConfirmModal = (row: MRT_Row<Location>) => {
         if (window.confirm('Are you sure you want to delete this user?')) {
-            deleteUser(row.original.id);
+            deleteUser(row.original.Id);
           
         }
     };
     function deleteUser(id: string) {
-        axios.delete(`/api/Location/${id}`, config)
+        axios.delete(`/api/Location/${id}`)
             .then(res => {
                 mutate({ ...data, data });
                 console.log(res);
@@ -234,11 +222,11 @@ const LocationsHomePage = () => {
 
     const table = useMaterialReactTable({
         columns,
-        data: data,
+        data,
         createDisplayMode: 'modal', //default ('row', and 'custom' are also available)
         editDisplayMode: 'modal', //default ('row', 'cell', 'table', and 'custom' are also available)
         enableEditing: true,
-        getRowId: (row) => row.id,
+        getRowId: (row) => row.Id,
 
         onCreatingRowCancel: () => setValidationErrors({}),
         onCreatingRowSave: handleCreateUser,
@@ -312,7 +300,8 @@ const LocationsHomePage = () => {
     });
 
 
-    return    <MaterialReactTable table={table} />;    
+    return <MaterialReactTable table={table} />
+    
         
     
 };

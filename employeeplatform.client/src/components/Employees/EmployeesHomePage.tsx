@@ -1,5 +1,5 @@
 
-import { useEffect, useMemo, useState } from 'react';
+import {  useMemo, useState } from 'react';
 import {
     MRT_EditActionButtons,
     MaterialReactTable,
@@ -21,7 +21,6 @@ import {
     Tooltip,
 } from '@mui/material';
 //import useSWR from "swr";
-import { useAuthStore } from '../../store/AuthStore';
 import EditIcon from '@mui/icons-material/Edit';
 import axios from 'axios';
 import fetcher from '../Common/fetcher';
@@ -56,10 +55,9 @@ type Location = { Name: string, Id: string, City: string }
 const EmployeesHomePage = () => {
     const [validationErrors, setValidationErrors] = useState<
         Record<string, string | undefined>
-    >({});
-    const userToken = useAuthStore((state) => state.token);
-    const [usersList, setUsersList] = useState<User[]>([])
-    const [locationsOptions, setLocationOptions] = useState<Location[]>([])
+   >({});    
+    //const [usersList, setUsersList] = useState<User[]>([])
+    //const [locatusersListionsOptions, setLocationOptions] = useState<Location[]>([])
     const [userToEdit, setUserToEdit] = useState<User|null>(null)
    
 
@@ -69,8 +67,9 @@ const EmployeesHomePage = () => {
     //}, [])
 
     const getUsersUrl = "/api/Account/users";
-    const { data, mutate, error, isLoading } = useSWR(getUsersUrl, (url: string) => fetcher(url,userToken));
-    //const { data, error, isLoading } = useSWR(getLocationsUrl, (url: string) => fetcher(url));    
+    const getLocationsUrl = "/api/Location"
+    const usersList = useSWR(getUsersUrl, (url: string) => fetcher(url));
+    const locationOptions = useSWR(getLocationsUrl, (url: string) => fetcher(url));    
     //console.log(data)
     const columns = useMemo<MRT_ColumnDef<User>[]>(
         () => [
@@ -96,7 +95,7 @@ const EmployeesHomePage = () => {
                 accessorKey: 'Location',
                 header: 'Locatie',
                 editVariant: 'select',
-                editSelectOptions: locationsOptions.map(location => location.Name /*{ return { label: location.name, text: location.id, value:location.name} }*/),
+                editSelectOptions: locationOptions.data.map((location:Location) => location.Name /*{ return { label: location.name, text: location.id, value:location.name} }*/),
                 muiEditTextFieldProps: {
                     select: true,
                     required: true,
@@ -179,7 +178,7 @@ const EmployeesHomePage = () => {
         }
         setValidationErrors({});
 
-        axios.post('/api/Account/register', { ...values, Password: `A${Math.random().toString(36).substring(2, 12)}`, Role:'Employee' }, config)
+        axios.post('/api/Account/register', { ...values, Password: `A${Math.random().toString(36).substring(2, 12)}`, Role:'Employee' })
             .then(res => console.log(res))
             .catch(err => { console.log(`${err.response.data}`) })
         //console.log(values)
@@ -210,7 +209,7 @@ const EmployeesHomePage = () => {
 
     const table = useMaterialReactTable({
         columns,
-        data: usersList,
+        data: usersList.data,
         createDisplayMode: 'modal', //default ('row', and 'custom' are also available)
         editDisplayMode: 'modal', //default ('row', 'cell', 'table', and 'custom' are also available)
         enableEditing: true,
@@ -269,7 +268,7 @@ const EmployeesHomePage = () => {
                         isOptionEqualToValue={(option: Location, value: Location) => option.Id === value.Id}
                         getOptionLabel={(option: Location) => option.Name}
                         id="combo-box-demo"
-                        options={locationsOptions}
+                        options={locationOptions.data}
                         renderInput={(params) => <TextField {...params} label="Locations" />}
                     />
                 </DialogContent>
@@ -312,7 +311,9 @@ const EmployeesHomePage = () => {
     });
     /*table.setColumnVisibility({ Password: false });*/
 
-    return <MaterialReactTable table={table} />;
+    if (usersList.error || locationOptions.error) return <div>failed to load</div>
+    if (usersList.isLoading || locationOptions.isLoading) return <div>loading...</div>
+    return<MaterialReactTable table={table} />;
 
 
 };
