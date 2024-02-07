@@ -23,6 +23,7 @@ import { useAuthStore } from '../../store/AuthStore';
 import EditIcon from '@mui/icons-material/Edit';
 import axios from 'axios';
 import DeleteIcon from '@mui/icons-material/Delete';
+import fetcher from '../Common/fetcher';
 
 
 const validateRequired = (value: string) => !!value.length;
@@ -60,22 +61,11 @@ const LocationsHomePage = () => {
         Record<string, string | undefined>
         >({});
     const userToken = useAuthStore((state) => state.token);
-    //const [data, setData] = useState<Location[]>([]) 
-    const config = {
-        headers: {
-            'Authorization': `Bearer ${userToken}`,            
-        }
-    }
 
-    const fetcher = (url: string) => fetch(url, {
-        headers: {
-            'Authorization': `Bearer ${userToken}`,
-        }
-    }).then((response) => response.json());
-    
 
-   
-    const { data, error, isLoading , mutate } = useSWR("/api/Location", (url: string) => fetcher(url), { fallbackData: {data:[]} });    
+
+    const locationURL= "/api/Location";
+    const { data, error, isLoading, mutate } = useSWR(locationURL, (url: string) => fetcher(url, userToken));    
    
     const columns = useMemo<MRT_ColumnDef<Location>[]>(
         () => [

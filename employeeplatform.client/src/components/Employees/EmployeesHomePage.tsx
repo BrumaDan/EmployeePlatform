@@ -10,29 +10,32 @@ import {
     useMaterialReactTable,
 } from 'material-react-table';
 import {
+    Autocomplete,
     Box,
     Button,
     DialogActions,
     DialogContent,
     DialogTitle,
     IconButton,
+    TextField,
     Tooltip,
 } from '@mui/material';
 //import useSWR from "swr";
 import { useAuthStore } from '../../store/AuthStore';
 import EditIcon from '@mui/icons-material/Edit';
 import axios from 'axios';
+import fetcher from '../Common/fetcher';
+import useSWR from 'swr';
 
 
 const validateRequired = (value: string) => !!value.length;
 
 function validateUser(user: User) {
     return {
-        FirtName: !validateRequired(user.FirstName)
+        FirstName: !validateRequired(user.FirstName)
             ? 'Name is Required'
             : '',
         LastName: !validateRequired(user.LastName) ? 'LasName is Required' : '',
-
     };
 }
 
@@ -43,10 +46,10 @@ type User = {
     FirstName: string,
     LastName: string,
     Role: string[]
-    location: Location[]
+    Location: Location[]
 }
 
-type Location = { name: string, id: string, city: string }
+type Location = { Name: string, Id: string, City: string }
 
 
 
@@ -57,25 +60,22 @@ const EmployeesHomePage = () => {
     const userToken = useAuthStore((state) => state.token);
     const [usersList, setUsersList] = useState<User[]>([])
     const [locationsOptions, setLocationOptions] = useState<Location[]>([])
-    const config = {
-        headers: {
-            'Authorization': `Bearer ${userToken}`,
-        }
-    }            
+    const [userToEdit, setUserToEdit] = useState<User|null>(null)
+   
 
-    useEffect(() => {
-        axios.get("/api/Account/users", config).then(res => { setUsersList(res.data) }).catch(err => console.log(err))
-        axios.get("/api/Location", config).then(res => { setLocationOptions(res.data) }).catch(err => console.log(err))
-    }, [])
+    //useEffect(() => {
+    //    axios.get("/api/Account/users", config).then(res => { console.log(res.data); setUsersList(res.data) }).catch(err => console.log(err))
+    //    axios.get("/api/Location", config).then(res => { setLocationOptions(res.data) }).catch(err => console.log(err))
+    //}, [])
 
-    //const getLocationsUrl = "/api/Location";
-    //const { data, mutate, error, isLoading } = useSWR(getLocationsUrl, (url: string) => fetcher(url));
+    const getUsersUrl = "/api/Account/users";
+    const { data, mutate, error, isLoading } = useSWR(getUsersUrl, (url: string) => fetcher(url,userToken));
     //const { data, error, isLoading } = useSWR(getLocationsUrl, (url: string) => fetcher(url));    
     //console.log(data)
     const columns = useMemo<MRT_ColumnDef<User>[]>(
         () => [
             {
-                accessorKey: 'userName',
+                accessorKey: 'UserName',
                 header: 'User Name',
                 muiEditTextFieldProps: {
                     type: 'string',
@@ -92,11 +92,11 @@ const EmployeesHomePage = () => {
                 },
             },
             {
-                accessorFn: (row: User) => row.location[0].name,
-                //accessorKey: 'userName',
+                /*     acaccessorFn: (row: User) => row.location.length ? row.location[0].name : "",*/
+                accessorKey: 'Location',
                 header: 'Locatie',
                 editVariant: 'select',
-                editSelectOptions: locationsOptions.map(location => { return { label: location.name, text: location.id, value:location.name} }),
+                editSelectOptions: locationsOptions.map(location => location.Name /*{ return { label: location.name, text: location.id, value:location.name} }*/),
                 muiEditTextFieldProps: {
                     select: true,
                     required: true,
@@ -111,25 +111,8 @@ const EmployeesHomePage = () => {
                     //optionally add validation checking for onBlur or onChange
                 },
             },
-            //{
-            //    accessorKey: 'password',
-            //    header: 'Password',
-            //    muiEditTextFieldProps: {
-            //        type: 'string',
-            //        required: true,
-            //        error: !!validationErrors?.name,
-            //        helperText: validationErrors?.name,
-            //        //remove any previous validation errors when user focuses on the input
-            //        onFocus: () =>
-            //            setValidationErrors({
-            //                ...validationErrors,
-            //                name: undefined,
-            //            }),
-            //        //optionally add validation checking for onBlur or onChange
-            //    },
-            //},
             {
-                accessorKey: 'firstName',
+                accessorKey: 'FirstName',
                 header: 'First Name',
                 muiEditTextFieldProps: {
                     type: 'string',
@@ -146,7 +129,7 @@ const EmployeesHomePage = () => {
                 },
             },
             {
-                accessorKey: 'lastName',
+                accessorKey: 'LastName',
                 header: 'Last Name',
                 muiEditTextFieldProps: {
                     type: 'string',
@@ -188,13 +171,15 @@ const EmployeesHomePage = () => {
         values,
         table,
     }) => {
+        console.log(values);
         const newValidationErrors = validateUser(values);
         if (Object.values(newValidationErrors).some((error) => error)) {
             setValidationErrors(newValidationErrors);
             return;
         }
         setValidationErrors({});
-        axios.post('/api/Account/register', { ...values }, config)
+
+        axios.post('/api/Account/register', { ...values, Password: `A${Math.random().toString(36).substring(2, 12)}`, Role:'Employee' }, config)
             .then(res => console.log(res))
             .catch(err => { console.log(`${err.response.data}`) })
         //console.log(values)
@@ -260,15 +245,33 @@ const EmployeesHomePage = () => {
             </>
         ),
         //optionally customize modal content
-        renderEditRowDialogContent: ({ table, row, internalEditComponents }) => (
+        renderEditRowDialogContent: ({ table, row }) => (
             <>
-                {console.log(internalEditComponents)}
+                {console.log(userToEdit)}
                 <DialogTitle variant="h3">Edit User</DialogTitle>
                 <DialogContent
                     sx={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}
                 >
-                    
-                    {internalEditComponents} {/* or render custom edit components here */}
+             
+                    {/*          {internalEditComponents}  */}{/*or render custom edit components here */}
+                    <TextField value={userToEdit?.FirstName} id="standard-basic" label="First Name" variant="standard" />
+                    <TextField value={userToEdit?.LastName} id="standard-basic" label="Last Name" variant="standard"/>
+                    <Autocomplete
+                        onChange={(_e, value) => {
+                            if (value && userToEdit) {
+                                setUserToEdit({ ...userToEdit, Location: value });
+                            }
+                        }}
+                        fullWidth={true}
+                        disablePortal={true }
+                        value={userToEdit?.Location}
+                        multiple/*={userToEdit?.role.includes('Employee')}*/
+                        isOptionEqualToValue={(option: Location, value: Location) => option.Id === value.Id}
+                        getOptionLabel={(option: Location) => option.Name}
+                        id="combo-box-demo"
+                        options={locationsOptions}
+                        renderInput={(params) => <TextField {...params} label="Locations" />}
+                    />
                 </DialogContent>
                 <DialogActions>
                     <MRT_EditActionButtons variant="text" table={table} row={row} />
@@ -278,7 +281,7 @@ const EmployeesHomePage = () => {
         renderRowActions: ({ row, table }) => (
             <Box sx={{ display: 'flex', gap: '1rem' }}>
                 <Tooltip title="Edit">
-                    <IconButton onClick={() => table.setEditingRow(row)}>
+                    <IconButton onClick={() => { table.setEditingRow(row); setUserToEdit(row.original) }}>
                         <EditIcon />
                     </IconButton>
                 </Tooltip>

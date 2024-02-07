@@ -24,6 +24,7 @@ const SignInSide = () => {
     const setToken = useAuthStore((state) => state.setToken);
     const setIsAuthenticated = useAuthStore((state) => state.setIsAuthenticated);
     const setRole = useAuthStore((state) => state.setRole);
+    const setUserName = useAuthStore((state) => state.setUserName);
   const navigate = useNavigate();    
     const [alertMessage , setAlertMessage] = React.useState<string | null>(null)
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -35,11 +36,13 @@ const SignInSide = () => {
               Password: data.get('password')
           }
       ).then(res => { 
-          console.log(res)
           if(res.status === 200){
               setIsAuthenticated(true)                
-              setToken(res.data.token)
-              setRole(res.data.role)
+              setToken(res.data.Token)
+              setRole(res.data.Role)
+              setUserName(res.data.UserName)
+              console.log(useAuthStore)
+              console.log(res.data);
               navigate("/home");
           }
       }).catch(err => { setAlertMessage(`${err.response.data}`)})            
