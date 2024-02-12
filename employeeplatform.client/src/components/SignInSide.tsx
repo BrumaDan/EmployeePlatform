@@ -41,8 +41,6 @@ const SignInSide = () => {
               setToken(res.data.Token)
               setRole(res.data.Role)
               setUserName(res.data.UserName)
-              console.log(useAuthStore)
-              console.log(res.data);
               navigate("/home");
           }
       }).catch(err => { setAlertMessage(`${err.response.data}`)})            

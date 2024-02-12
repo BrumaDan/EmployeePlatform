@@ -8,6 +8,7 @@ import {
     //type MRT_Row,
     type MRT_TableOptions,
     useMaterialReactTable,
+    MRT_Row,
 } from 'material-react-table';
 import {
     Autocomplete,
@@ -56,21 +57,15 @@ const EmployeesHomePage = () => {
     const [validationErrors, setValidationErrors] = useState<
         Record<string, string | undefined>
    >({});    
-    //const [usersList, setUsersList] = useState<User[]>([])
-    //const [locatusersListionsOptions, setLocationOptions] = useState<Location[]>([])
     const [userToEdit, setUserToEdit] = useState<User|null>(null)
    
 
-    //useEffect(() => {
-    //    axios.get("/api/Account/users", config).then(res => { console.log(res.data); setUsersList(res.data) }).catch(err => console.log(err))
-    //    axios.get("/api/Location", config).then(res => { setLocationOptions(res.data) }).catch(err => console.log(err))
-    //}, [])
+
 
     const getUsersUrl = "/api/Account/users";
     const getLocationsUrl = "/api/Location"
-    const usersList = useSWR(getUsersUrl, (url: string) => fetcher(url));
-    const locationOptions = useSWR(getLocationsUrl, (url: string) => fetcher(url));    
-    //console.log(data)
+    const usersList = useSWR(getUsersUrl, (url: string) => fetcher(url), { fallbackData:  []  });
+    const locationOptions = useSWR(getLocationsUrl, (url: string) => fetcher(url), { fallbackData: [] });    
     const columns = useMemo<MRT_ColumnDef<User>[]>(
         () => [
             {
@@ -91,11 +86,10 @@ const EmployeesHomePage = () => {
                 },
             },
             {
-                /*     acaccessorFn: (row: User) => row.location.length ? row.location[0].name : "",*/
-                accessorKey: 'Location',
+                accessorFn: (row) => row.Location.length ? row.Location.map(location => `${location.Name} `) : ['not assigned yet'],
                 header: 'Locatie',
                 editVariant: 'select',
-                editSelectOptions: locationOptions.data.map((location:Location) => location.Name /*{ return { label: location.name, text: location.id, value:location.name} }*/),
+                editSelectOptions: locationOptions.data.map((location: Location) => location.Name),
                 muiEditTextFieldProps: {
                     select: true,
                     required: true,
@@ -170,7 +164,6 @@ const EmployeesHomePage = () => {
         values,
         table,
     }) => {
-        console.log(values);
         const newValidationErrors = validateUser(values);
         if (Object.values(newValidationErrors).some((error) => error)) {
             setValidationErrors(newValidationErrors);
@@ -181,7 +174,6 @@ const EmployeesHomePage = () => {
         axios.post('/api/Account/register', { ...values, Password: `A${Math.random().toString(36).substring(2, 12)}`, Role:'Employee' })
             .then(res => console.log(res))
             .catch(err => { console.log(`${err.response.data}`) })
-        //console.log(values)
         table.setCreatingRow(null); //exit creating mode
     };
 
@@ -190,7 +182,6 @@ const EmployeesHomePage = () => {
         values,
         table,
     }) => {
-        console.log(values)
         const newValidationErrors = validateUser(values);
         if (Object.values(newValidationErrors).some((error) => error)) {
             setValidationErrors(newValidationErrors);
@@ -206,7 +197,8 @@ const EmployeesHomePage = () => {
     //        deleteUser(row.original.id);
     //    }
     //};
-
+    //};
+    
     const table = useMaterialReactTable({
         columns,
         data: usersList.data,
@@ -246,7 +238,6 @@ const EmployeesHomePage = () => {
         //optionally customize modal content
         renderEditRowDialogContent: ({ table, row }) => (
             <>
-                {console.log(userToEdit)}
                 <DialogTitle variant="h3">Edit User</DialogTitle>
                 <DialogContent
                     sx={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}
