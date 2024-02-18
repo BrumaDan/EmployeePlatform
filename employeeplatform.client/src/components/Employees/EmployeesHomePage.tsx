@@ -8,17 +8,17 @@ import {
     //type MRT_Row,
     type MRT_TableOptions,
     useMaterialReactTable,
-    MRT_Row,
+    
 } from 'material-react-table';
 import {
-    Autocomplete,
+    //Autocomplete,
     Box,
     Button,
     DialogActions,
     DialogContent,
     DialogTitle,
     IconButton,
-    TextField,
+    //TextField,
     Tooltip,
 } from '@mui/material';
 //import useSWR from "swr";
@@ -29,7 +29,7 @@ import useSWR from 'swr';
 
 
 const validateRequired = (value: string) => !!value.length;
-const validateLocationRequired = (value: Location []) => !!value;
+//const validateLocationRequired = (value: Location[]) => value ? value.length : false ;
 
 function validateUser(user: User) {
     console.log(user);
@@ -37,10 +37,10 @@ function validateUser(user: User) {
         FirstName: !validateRequired(user.FirstName)
             ? 'Name is Required'
             : '',
-        UserName: !validateRequired (user.UserName) ? "UserName is required": " ",
+        UserName: !validateRequired (user.UserName) ? "UserName is required": '',
         LastName: !validateRequired(user.LastName) ? 'LastName is Required' : '',
      
-        Location: !validateLocationRequired(user.Location) ? 'Location is Required' : '',
+        //Location: !validateLocationRequired(user.Location) ? 'Location is Required' : '',
     };
 }
 
@@ -62,7 +62,7 @@ const EmployeesHomePage = () => {
     const [validationErrors, setValidationErrors] = useState<
         Record<string, string | undefined>
    >({});    
-    const [userToEdit, setUserToEdit] = useState<User|null>(null)
+    //const [userToEdit, setUserToEdit] = useState<User|null>(null)
    
 
 
@@ -76,6 +76,7 @@ const EmployeesHomePage = () => {
             {
                 accessorKey: 'UserName',
                 header: 'User Name',
+                muiTableHeadCellProps: {},
                 muiEditTextFieldProps: {
                     type: 'string',
                     required: true,
@@ -93,10 +94,10 @@ const EmployeesHomePage = () => {
 
             {
                 accessorFn: (row) =>row.Location ?  row.Location.map(location => `${location.Name}`) : null,
-                header: 'Locatie',
+                header: 'Location',
                 editVariant: 'select',
-                editSelectOptions: locationOptions.data.map((location: Location) => location.Name),
-                muiEditTextFieldProps: {
+                editSelectOptions: locationOptions.data.map((location: Location) => { return { label: location.Name, text: location.Name, value: location.Id } } ),                
+                muiEditTextFieldProps: {                    
                     select: true,
                     required: true,
                     error: !!validationErrors?.Location,
@@ -175,9 +176,8 @@ const EmployeesHomePage = () => {
             setValidationErrors(newValidationErrors);
             return;
         }
-        setValidationErrors({});
-
-        axios.post('/api/Account/register', { ...values, Password: `A${Math.random().toString(36).substring(2, 12)}`, Role:'Employee' })
+        setValidationErrors({});        
+        axios.post('/api/Account/register', { ...values, Password: `A${Math.random().toString(36).substring(2, 12)}`, Role: 'Employee' })
             .then(res => console.log(res))
             .catch(err => { console.log(`${err.response.data}`) })
         table.setCreatingRow(null); //exit creating mode
@@ -193,7 +193,11 @@ const EmployeesHomePage = () => {
             setValidationErrors(newValidationErrors);
             return;
         }
-        setValidationErrors
+        console.log(values)
+        axios.put('/api/Account/update', { ...values })
+            .then(res => console.log(res))
+            .catch(err => { console.log(`${err.response.data}`) })
+        setValidationErrors({})
         table.setEditingRow(null); //exit editing mode
     };
 
@@ -230,7 +234,6 @@ const EmployeesHomePage = () => {
         //optionally customize modal content
         renderCreateRowDialogContent: ({ table, row, internalEditComponents }) => (
             <>
-                {console.log(internalEditComponents)}
                 <DialogTitle variant="h3">Create New User</DialogTitle>
                 <DialogContent
                     sx={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}
@@ -244,32 +247,32 @@ const EmployeesHomePage = () => {
             </>
         ),
         //optionally customize modal content
-        renderEditRowDialogContent: ({ table, row }) => (
+        renderEditRowDialogContent: ({ table, row, internalEditComponents }) => (
             <>
                 <DialogTitle variant="h3">Edit User</DialogTitle>
                 <DialogContent
                     sx={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}
                 >
              
-                    {/*          {internalEditComponents}  */}{/*or render custom edit components here */}
-                    <TextField value={userToEdit?.FirstName} id="standard-basic" label="First Name" variant="standard" />
-                    <TextField value={userToEdit?.LastName} id="standard-basic" label="Last Name" variant="standard"/>
-                    <Autocomplete
-                        onChange={(_e, value) => {
-                            if (value && userToEdit) {
-                                setUserToEdit({ ...userToEdit, Location: value });
-                            }
-                        }}
-                        fullWidth={true}
-                        disablePortal={true }
-                        value={userToEdit?.Location}
-                        multiple/*={userToEdit?.role.includes('Employee')}*/
-                        isOptionEqualToValue={(option: Location, value: Location) => option.Id === value.Id}
-                        getOptionLabel={(option: Location) => option.Name}
-                        id="combo-box-demo"
-                        options={locationOptions.data}
-                        renderInput={(params) => <TextField {...params} label="Locations" />}
-                    />
+                         {internalEditComponents} {/*or render custom edit components here */}
+                    {/*<TextField value={userToEdit?.FirstName} id="standard-basic" label="First Name" variant="standard" />*/}
+                    {/*<TextField value={userToEdit?.LastName} id="standard-basic" label="Last Name" variant="standard"/>*/}
+                    {/*<Autocomplete*/}
+                    {/*    onChange={(_e, value) => {*/}
+                    {/*        if (value && userToEdit) {*/}
+                    {/*            setUserToEdit({ ...userToEdit, Location: value });*/}
+                    {/*        }*/}
+                    {/*    }}*/}
+                    {/*    fullWidth={true}*/}
+                    {/*    disablePortal={true }*/}
+                    {/*    value={userToEdit?.Location}*/}
+                    {/*    multiple/*={userToEdit?.role.includes('Employee')}*/}
+                    {/*    isOptionEqualToValue={(option: Location, value: Location) => option.Id === value.Id}*/}
+                    {/*    getOptionLabel={(option: Location) => option.Name}*/}
+                    {/*    id="combo-box-demo"*/}
+                    {/*    options={locationOptions.data}*/}
+                    {/*    renderInput={(params) => <TextField {...params} label="Locations" />}*/}
+                    {/*/>*/}
                 </DialogContent>
                 <DialogActions>
                     <MRT_EditActionButtons variant="text" table={table} row={row} />
@@ -279,7 +282,10 @@ const EmployeesHomePage = () => {
         renderRowActions: ({ row, table }) => (
             <Box sx={{ display: 'flex', gap: '1rem' }}>
                 <Tooltip title="Edit">
-                    <IconButton onClick={() => { table.setEditingRow(row); setUserToEdit(row.original) }}>
+                    <IconButton onClick={() => {
+                        table.setEditingRow(row);
+                        /*setUserToEdit(row.original)*/
+                    }}>
                         <EditIcon />
                     </IconButton>
                 </Tooltip>

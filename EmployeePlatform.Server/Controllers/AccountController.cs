@@ -20,35 +20,78 @@ namespace EmployeePlatform.Server.Controllers
         private readonly UserManager<AppUser> _userManager;
         private readonly ITokenService _tokenService;
         private readonly IMapper mapper;
-        
-       
-        public AccountController(ITokenService service, IMapper mapper, UserManager<AppUser> userManager )
+        private readonly ApplicationDbContext dbContext;
+
+        public AccountController(ITokenService service, IMapper mapper, UserManager<AppUser> userManager , ApplicationDbContext dbContext)
         {
             _tokenService = service;
             this.mapper = mapper;
+            this.dbContext = dbContext;
             _userManager = userManager;
            
         }
 
-        [HttpPost("register")]
 
-        public async Task<ActionResult<UserDto>> Register(RegisterDto registerDto)
-        {
-            if (await UserExists(registerDto.Username)) return BadRequest("Username is taken");
-            var user = mapper.Map<AppUser>(registerDto);
-            user.UserName = registerDto.Username.ToLower();
-            var result = await _userManager.CreateAsync(user, registerDto.Password);
-            if (!result.Succeeded)
+        [HttpPut("update")]
+        public async Task<ActionResult<AppUser>> Update(UpdateUserDto updateUserDto) {
+            try
             {
-                return BadRequest(result.Errors);
+                var user = mapper.Map<AppUser>(updateUserDto);
+                var dbUser = await _userManager.FindByNameAsync(updateUserDto.Username);
+                dbUser.FirstName = user.FirstName;
+                dbUser.LastName = user.LastName;
+                dbUser.UserName = user.UserName;
+                var updatedUser = await _userManager.UpdateAsync(dbUser);
+                //var roleResult = await _userManager.AddToRoleAsync(user, updateUserDto.Role);
+                if (updateUserDto.Location != null) {
+                    var userLocationAssign = await dbContext.AppUserLocation.AddAsync(new AppUserLocation { UserId = dbUser.Id, LocationId = (Guid)updateUserDto.Location });
+                }                
+                await dbContext.SaveChangesAsync();
+                return user;
             }
-            var roleResult = await _userManager.AddToRoleAsync(user, registerDto.Role);
-            if (!roleResult.Succeeded) return BadRequest(result.Errors);
-                return new UserDto
+            catch (Exception err)
             {
-                Username = user.UserName,
-                Token = await _tokenService.CreateToken(user)
-            };
+
+                return BadRequest(err.Message);
+            }
+      
+        }
+        [HttpPost("register")]
+        public async Task<ActionResult<UserDto>> Register(RegisterDto registerDto)
+        {                     
+            try
+            {
+                if (await UserExists(registerDto.Username))
+                    return BadRequest("Username is taken");
+
+                var user = mapper.Map<AppUser>(registerDto);
+                user.UserName = registerDto.Username.ToLower();
+
+                var result = await _userManager.CreateAsync(user, registerDto.Password);
+                if (!result.Succeeded)
+                {                 
+                    return BadRequest(result.Errors);
+                }
+
+                var roleResult = await _userManager.AddToRoleAsync(user, registerDto.Role);
+                if (!roleResult.Succeeded)
+                {                 
+                    return BadRequest(roleResult.Errors);
+                }
+
+                var userLocationAssign = await dbContext.AppUserLocation.AddAsync(new AppUserLocation {UserId= user.Id, LocationId = registerDto.Location });                                
+                await dbContext.SaveChangesAsync();
+
+                return new UserDto
+                {
+                    Username = user.UserName,
+                    Token = await _tokenService.CreateToken(user)
+                };
+            }
+            catch (Exception ex)
+            {                
+                return StatusCode(500, "An error occurred while processing your request.");
+            }
         }
 
         [HttpPost("login")]

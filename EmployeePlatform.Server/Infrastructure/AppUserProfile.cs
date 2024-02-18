@@ -10,6 +10,8 @@ namespace EmployeePlatform.Server.Infrastructure
         //another test
         CreateMap<AppUser, RegisterDto>();
         CreateMap<RegisterDto, AppUser>();
-    }
+        CreateMap<AppUser, UpdateUserDto>();
+        CreateMap<UpdateUserDto, AppUser>();
+        }
 }
 }
