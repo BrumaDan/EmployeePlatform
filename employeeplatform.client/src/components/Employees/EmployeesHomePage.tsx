@@ -29,13 +29,18 @@ import useSWR from 'swr';
 
 
 const validateRequired = (value: string) => !!value.length;
+const validateLocationRequired = (value: Location []) => !!value;
 
 function validateUser(user: User) {
+    console.log(user);
     return {
         FirstName: !validateRequired(user.FirstName)
             ? 'Name is Required'
             : '',
-        LastName: !validateRequired(user.LastName) ? 'LasName is Required' : '',
+        UserName: !validateRequired (user.UserName) ? "UserName is required": " ",
+        LastName: !validateRequired(user.LastName) ? 'LastName is Required' : '',
+     
+        Location: !validateLocationRequired(user.Location) ? 'Location is Required' : '',
     };
 }
 
@@ -74,32 +79,33 @@ const EmployeesHomePage = () => {
                 muiEditTextFieldProps: {
                     type: 'string',
                     required: true,
-                    error: !!validationErrors?.name,
-                    helperText: validationErrors?.name,
+                    error: !!validationErrors?.UserName,
+                    helperText: validationErrors?.UserName,
                     //remove any previous validation errors when user focuses on the input
                     onFocus: () =>
                         setValidationErrors({
                             ...validationErrors,
-                            name: undefined,
+                            UserName: undefined,
                         }),
                     //optionally add validation checking for onBlur or onChange
                 },
             },
+
             {
-                accessorFn: (row) => row.Location.length ? row.Location.map(location => `${location.Name} `) : ['not assigned yet'],
+                accessorFn: (row) =>row.Location ?  row.Location.map(location => `${location.Name}`) : null,
                 header: 'Locatie',
                 editVariant: 'select',
                 editSelectOptions: locationOptions.data.map((location: Location) => location.Name),
                 muiEditTextFieldProps: {
                     select: true,
                     required: true,
-                    error: !!validationErrors?.name,
-                    helperText: validationErrors?.name,
+                    error: !!validationErrors?.Location,
+                    helperText: validationErrors?.Location,
                     //remove any previous validation errors when user focuses on the input
                     onFocus: () =>
                         setValidationErrors({
                             ...validationErrors,
-                            name: undefined,
+                            Location: undefined,
                         }),
                     //optionally add validation checking for onBlur or onChange
                 },
@@ -110,13 +116,13 @@ const EmployeesHomePage = () => {
                 muiEditTextFieldProps: {
                     type: 'string',
                     required: true,
-                    error: !!validationErrors?.name,
-                    helperText: validationErrors?.name,
+                    error: !!validationErrors?.FirstName,
+                    helperText: validationErrors?.FirstName,
                     //remove any previous validation errors when user focuses on the input
                     onFocus: () =>
                         setValidationErrors({
                             ...validationErrors,
-                            name: undefined,
+                            FirstName: undefined,
                         }),
                     //optionally add validation checking for onBlur or onChange
                 },
@@ -127,13 +133,13 @@ const EmployeesHomePage = () => {
                 muiEditTextFieldProps: {
                     type: 'string',
                     required: true,
-                    error: !!validationErrors?.description,
-                    helperText: validationErrors?.description,
+                    error: !!validationErrors?.LastName,
+                    helperText: validationErrors?.LastName,
                     //remove any previous validation errors when user focuses on the input
                     onFocus: () =>
                         setValidationErrors({
                             ...validationErrors,
-                            description: undefined,
+                            LastName: undefined,
                         }),
                 },
             },
@@ -224,10 +230,12 @@ const EmployeesHomePage = () => {
         //optionally customize modal content
         renderCreateRowDialogContent: ({ table, row, internalEditComponents }) => (
             <>
+                {console.log(internalEditComponents)}
                 <DialogTitle variant="h3">Create New User</DialogTitle>
                 <DialogContent
                     sx={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}
                 >
+               
                     {internalEditComponents} {/* or render custom edit components here */}
                 </DialogContent>
                 <DialogActions>

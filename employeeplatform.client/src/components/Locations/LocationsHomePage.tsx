@@ -57,7 +57,6 @@ const LocationsHomePage = () => {
     const [validationErrors, setValidationErrors] = useState<
         Record<string, string | undefined>
         >({});
-    //const userToken = useAuthStore((state) => state.token);
 
     const locationURL = "/api/Location";    
     const { data, error, isLoading, mutate } = useSWR(locationURL, (url: string) => fetcher(url), { fallbackData: { data: [] }});    
@@ -166,7 +165,7 @@ const LocationsHomePage = () => {
     );
 
 
-    const handleCreateUser: MRT_TableOptions<Location>['onCreatingRowSave'] = async ({
+    const handleCreateLocation: MRT_TableOptions<Location>['onCreatingRowSave'] = async ({
         values,
         table,
     }) => {
@@ -229,7 +228,7 @@ const LocationsHomePage = () => {
         getRowId: (row) => row.Id,
 
         onCreatingRowCancel: () => setValidationErrors({}),
-        onCreatingRowSave: handleCreateUser,
+        onCreatingRowSave: handleCreateLocation,
         onEditingRowCancel: () => setValidationErrors({}),
         onEditingRowSave: handleSaveUser,
     
@@ -279,13 +278,7 @@ const LocationsHomePage = () => {
             <Button
                 variant="contained"
                 onClick={() => {
-                    table.setCreatingRow(true); //simplest way to open the create row modal with no default values
-                    //or you can pass in a row object to set default values with the `createRow` helper function
-                    // table.setCreatingRow(
-                    //   createRow(table, {
-                    //     //optionally pass in default values for the new row, useful for nested data or other complex scenarios
-                    //   }),
-                    // );
+                    table.setCreatingRow(true); 
                 }}
             >
                 Create New Location
